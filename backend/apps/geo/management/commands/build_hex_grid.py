@@ -47,9 +47,9 @@ class Command(BaseCommand):
             raise CommandError(f"Unknown country {iso3}") from e
 
         level = level or max((u["level"] for u in country.admin_levels), default=None)
-        if level is None or level > 3:
-            raise CommandError("Pass --level 1..3 (hex_cell stores admin_l1..l3)")
-        if not country.admin_units.filter(level=level).exists():
+        if level is None or level > 4:
+            raise CommandError("Pass --level 1..4 (hex_cell stores admin_l1..l4)")
+        if not country.admin_units.filter(level=level, valid_to__isnull=True).exists():
             raise CommandError(f"No admin units at level {level} for {iso3}; load boundaries first")
 
         params = {"country": country.id, "level": level, "res": ANALYSIS_RES}

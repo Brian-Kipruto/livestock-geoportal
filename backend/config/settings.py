@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "apps.catalog",
     "apps.poi",
     "apps.movement",
+    "apps.ingest",
 ]
 
 MIDDLEWARE = [
@@ -108,6 +109,12 @@ S3_ACCESS_KEY = env("S3_ACCESS_KEY", default="")
 S3_SECRET_KEY = env("S3_SECRET_KEY", default="")
 S3_BUCKET_COG = env("S3_BUCKET_COG", default="cogs")
 S3_BUCKET_MEDIA = env("S3_BUCKET_MEDIA", default="media")
+
+# --- Ingestion (SDD §12) -----------------------------------------------------
+# Raw downloads and decoded source rasters are cached here, keyed by URL (SDD §12.3).
+INGEST_CACHE_DIR = env("INGEST_CACHE_DIR", default="/data/cache")
+INGEST_THREADS = env.int("INGEST_THREADS", default=8)
+INGEST_USER_AGENT = "geoportal-ingest/0.1"
 
 # --- Auth --------------------------------------------------------------------
 AUTH_PASSWORD_VALIDATORS = [

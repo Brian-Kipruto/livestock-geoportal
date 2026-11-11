@@ -45,7 +45,9 @@ class Dataset(models.Model):
 
     @property
     def latest_version(self) -> "DatasetVersion | None":
-        return self.versions.order_by("-data_date", "-ingested_at").first()
+        return self.versions.order_by(
+            models.F("data_date").desc(nulls_last=True), "-ingested_at"
+        ).first()
 
 
 class DatasetVersion(models.Model):
@@ -55,6 +57,9 @@ class DatasetVersion(models.Model):
     ingested_at = models.DateTimeField(auto_now_add=True)
     checksum = models.CharField(max_length=128, blank=True)
     validation_report = models.CharField(max_length=500, blank=True, help_text="Object-store key")
+    validation = models.JSONField(
+        default=dict, blank=True, help_text="Summary of the validation report (passed, warnings)"
+    )
     notes = models.TextField(blank=True)
 
     class Meta:
@@ -68,6 +73,7 @@ class Indicator(models.Model):
     class Temporal(models.TextChoices):
         STATIC = "static"
         MONTHLY = "monthly"
+        ANNUAL = "annual"
         SEASONAL = "seasonal"
         SCENARIO = "scenario"
 

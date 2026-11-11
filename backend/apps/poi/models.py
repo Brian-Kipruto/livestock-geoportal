@@ -19,6 +19,7 @@ class Poi(models.Model):
     country = models.ForeignKey("geo.Country", on_delete=models.CASCADE, related_name="pois")
     poi_type = models.ForeignKey(PoiType, on_delete=models.PROTECT, related_name="pois")
     name = models.CharField(max_length=200, blank=True)
+    external_id = models.CharField(max_length=80, blank=True, help_text="e.g. osm:node/123")
     attributes = models.JSONField(default=dict, blank=True)
     source_dataset = models.ForeignKey(
         "catalog.Dataset", null=True, blank=True, on_delete=models.SET_NULL, related_name="pois"

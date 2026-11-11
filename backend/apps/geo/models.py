@@ -25,6 +25,11 @@ class Country(models.Model):
     )
     default_bbox = models.PolygonField(srid=4326)
     languages = ArrayField(models.CharField(max_length=8), default=list)
+    sources = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text='Source ids, e.g. {"hdx_cod_ab": "cod-ab-uga", "geofabrik": "africa/uganda"}',
+    )
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -85,6 +90,9 @@ class HexCell(models.Model):
     admin_l3 = models.ForeignKey(
         AdminUnit, null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
     )
+    admin_l4 = models.ForeignKey(
+        AdminUnit, null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
+    )
     land_frac = models.FloatField(null=True, blank=True)
     geom = models.PolygonField(srid=4326)
 
@@ -93,3 +101,42 @@ class HexCell(models.Model):
 
     def __str__(self) -> str:
         return self.h3
+
+
+class Road(models.Model):
+    """OSM road network, filtered to classes that matter for livestock access (SDD §9.4)."""
+
+    country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name="roads")
+    osm_id = models.BigIntegerField()
+    highway = models.CharField(max_length=40)
+    name = models.CharField(max_length=200, blank=True)
+    surface = models.CharField(max_length=40, blank=True)
+    dataset_version = models.ForeignKey(
+        "catalog.DatasetVersion", null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
+    )
+    geom = models.LineStringField(srid=4326)
+
+    class Meta:
+        indexes = [models.Index(fields=["country", "highway"])]
+
+    def __str__(self) -> str:
+        return self.name or f"{self.highway} {self.osm_id}"
+
+
+class Waterway(models.Model):
+    """OSM rivers, streams and canals."""
+
+    country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name="waterways")
+    osm_id = models.BigIntegerField()
+    waterway = models.CharField(max_length=40)
+    name = models.CharField(max_length=200, blank=True)
+    dataset_version = models.ForeignKey(
+        "catalog.DatasetVersion", null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
+    )
+    geom = models.LineStringField(srid=4326)
+
+    class Meta:
+        indexes = [models.Index(fields=["country", "waterway"])]
+
+    def __str__(self) -> str:
+        return self.name or f"{self.waterway} {self.osm_id}"

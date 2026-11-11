@@ -6,7 +6,10 @@ from .models import Dataset, DatasetVersion, Indicator, Layer, RasterAsset
 class DatasetVersionInline(admin.TabularInline):
     model = DatasetVersion
     extra = 0
-    readonly_fields = ["ingested_at"]
+    fields = ["version_label", "data_date", "ingested_at", "validation", "validation_report"]
+    readonly_fields = fields
+    ordering = ["-ingested_at"]
+    show_change_link = True
 
 
 @admin.register(Dataset)
@@ -31,3 +34,14 @@ class LayerAdmin(admin.ModelAdmin):
 
 
 admin.site.register(RasterAsset)
+
+
+@admin.register(DatasetVersion)
+class DatasetVersionAdmin(admin.ModelAdmin):
+    list_display = ["dataset", "version_label", "data_date", "ingested_at", "passed"]
+    list_filter = ["dataset"]
+    readonly_fields = ["ingested_at", "validation", "validation_report", "checksum"]
+
+    @admin.display(boolean=True)
+    def passed(self, obj):
+        return obj.validation.get("passed") if obj.validation else None

@@ -1,0 +1,12 @@
+# Martin vector tiles (SDD §6.3, §10.6). Only the `tiles` schema is published — those are
+# views maintained by Django migrations. Never point this at `public`.
+listen_addresses: "0.0.0.0:3000"
+base_path: /tiles/v
+cache_size_mb: 256
+postgres:
+  connection_string: ${DATABASE_URL}
+  default_srid: 4326
+  auto_publish:
+    from_schemas: [tiles]
+    tables: true
+    functions: true

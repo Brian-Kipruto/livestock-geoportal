@@ -1,0 +1,133 @@
+# Livestock Value Chain Geoportal — full stack (SDD §14.1).
+#   cp .env.example .env   # then change the secrets
+#   docker compose up -d --build
+# Ops-only services (flower) live behind the "ops" profile.
+
+x-django: &django
+  build:
+    context: ./backend
+    args:
+      INSTALL_DEV: ${INSTALL_DEV:-1}
+  image: geoportal-django:local
+  env_file: .env
+  environment:
+    DATABASE_URL: postgis://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    REDIS_URL: redis://redis:6379/0
+    S3_ENDPOINT: http://s3:8333
+  depends_on:
+    db: { condition: service_healthy }
+    redis: { condition: service_started }
+  restart: unless-stopped
+
+services:
+  db:
+    build: ./infra/db
+    image: geoportal-db:local
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      MARTIN_DB_PASSWORD: ${MARTIN_DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    restart: unless-stopped
+
+  s3:
+    # S3-compatible object storage (ADR-009: SeaweedFS replaces MinIO).
+    image: chrislusf/seaweedfs:3.97
+    entrypoint: ["/bin/sh", "/entrypoint-geoportal.sh"]
+    environment:
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+    volumes:
+      - s3data:/data
+      - ./infra/seaweedfs/entrypoint.sh:/entrypoint-geoportal.sh:ro
+    ports:
+      - "127.0.0.1:${S3_PORT:-8333}:8333"
+    restart: unless-stopped
+
+  django:
+    <<: *django
+    command: ["web"]
+    ports:
+      - "127.0.0.1:${DJANGO_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/api/v1/health/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  celery-worker:
+    <<: *django
+    command: ["worker"]
+
+  celery-beat:
+    <<: *django
+    command: ["beat"]
+
+  martin:
+    image: ghcr.io/maplibre/martin:v0.15.0
+    command: ["--config", "/config.yaml"]
+    environment:
+      DATABASE_URL: postgresql://martin_ro:${MARTIN_DB_PASSWORD}@db:5432/${POSTGRES_DB}
+    volumes:
+      - ./infra/martin/config.yaml:/config.yaml:ro
+    depends_on:
+      django: { condition: service_healthy } # tiles.* views are created by migrations
+    restart: unless-stopped
+
+  titiler:
+    build: ./infra/titiler
+    image: geoportal-titiler:local
+    environment:
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY}
+      AWS_S3_ENDPOINT: s3:8333
+      AWS_HTTPS: "NO"
+      AWS_VIRTUAL_HOSTING: "FALSE"
+      TITILER_ALLOWED_PREFIXES: s3://${S3_BUCKET_COG:-cogs}/
+      GDAL_DISABLE_READDIR_ON_OPEN: EMPTY_DIR
+    restart: unless-stopped
+
+  caddy:
+    build:
+      context: .
+      dockerfile: infra/caddy/Dockerfile
+    image: geoportal-caddy:local
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+    ports:
+      - "${HTTP_PORT:-8080}:80"
+      - "${HTTPS_PORT:-8443}:443"
+    volumes:
+      - caddy_data:/data
+    depends_on: [django, martin, titiler]
+    restart: unless-stopped
+
+  flower:
+    profiles: ["ops"]
+    image: mher/flower:2.0
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+    ports:
+      - "127.0.0.1:5555:5555"
+    depends_on: [redis]
+
+volumes:
+  pgdata:
+  s3data:
+  caddy_data:

@@ -1,0 +1,14 @@
+# Heavy geospatial processing stack used by ingestion jobs (M1+).
+-r base.txt
+numpy>=1.26,<3
+pandas>=2.2,<3
+xarray>=2024.9
+rioxarray>=0.17
+rasterio>=1.4,<2
+geopandas>=1.0,<2
+shapely>=2.0,<3
+pystac-client>=0.8
+odc-stac>=0.3.10
+exactextract>=0.2
+scipy>=1.14
+movingpandas>=0.20

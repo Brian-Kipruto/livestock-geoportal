@@ -1,0 +1,89 @@
+{
+  "app": {
+    "title": "Livestock Value Chain Geoportal",
+    "search": "Search district, sub-county, market, lat/long",
+    "skip": "Skip to map controls"
+  },
+  "nav": {
+    "explore": "Explore",
+    "movement": "Movement",
+    "finder": "Finder",
+    "compare": "Compare",
+    "profiles": "Profiles",
+    "about": "About & data"
+  },
+  "role": { "label": "View as", "policy": "Policy", "investor": "Investor", "technical": "Technical" },
+  "top": { "lite": "Lite mode", "share": "Share", "help": "Help", "copied": "Link copied", "language": "Language" },
+  "token": {
+    "live": "Live",
+    "daysAgo": "{{n}} d ago",
+    "monthsAgo": "{{n}} mo ago",
+    "stale": "Stale",
+    "pending": "Data pending",
+    "error": "Error",
+    "normal": "Normal",
+    "watch": "Watch",
+    "alert": "Alert",
+    "emergency": "Emergency",
+    "illustrative": "Illustrative"
+  },
+  "status": { "drought": "Drought status", "collars": "Collars" },
+  "layers": {
+    "title": "Layers",
+    "on": "{{n}} on",
+    "opacity": "Opacity",
+    "info": "About this layer",
+    "unavailable": "Layer list unavailable — is the API running?",
+    "theme": {
+      "pasture_water": "Pasture & water",
+      "climate": "Climate risk",
+      "livestock": "Livestock",
+      "markets": "Markets & access",
+      "movement": "Movement",
+      "land": "Land & tenure",
+      "health": "Animal health",
+      "boundaries": "Boundaries"
+    }
+  },
+  "legend": {
+    "farBelow": "Far below",
+    "normal": "Normal",
+    "wellAbove": "Well above",
+    "sampleNote": "Illustrative pattern — no data ingested yet"
+  },
+  "playback": {
+    "play": "Play",
+    "pause": "Pause",
+    "prev": "Previous month",
+    "next": "Next month",
+    "speed": "Playback speed",
+    "loop": "Loop",
+    "monthly": "Monthly composite",
+    "month": "Month"
+  },
+  "tools": {
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "reset": "Reset view",
+    "fullscreen": "Full screen"
+  },
+  "area": {
+    "select": "Select an area",
+    "hint": "Click a district on the map, or use search, to see pasture, climate and livestock indicators.",
+    "profile": "Profile",
+    "compare": "Compare"
+  },
+  "pilot": {
+    "badge": "Coming in pilot",
+    "finder": "Find areas where an investment (water point, fodder, market, vet services) is most viable, with adjustable criteria.",
+    "compare": "Compare now vs future climate (SSP2-4.5 / SSP5-8.5), wet vs dry seasons, or two districts side by side.",
+    "profiles": "Printable district and country briefs for policymakers, investors and technical officers."
+  },
+  "movement": {
+    "title": "Herd tracks",
+    "privacy": "Public view aggregates positions to hexes to protect herders.",
+    "insights": "Movement insights",
+    "awaiting": "GPS collar data not yet loaded"
+  },
+  "map": { "webgl": "This map needs WebGL2. Please update your browser, or switch on Lite mode." }
+}

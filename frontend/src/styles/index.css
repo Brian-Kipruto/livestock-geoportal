@@ -1,0 +1,64 @@
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/source-serif-4/600.css";
+@import "@fontsource/source-serif-4/700.css";
+@import "maplibre-gl/dist/maplibre-gl.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    @apply h-full;
+  }
+  body {
+    @apply bg-parchment font-sans text-ink antialiased;
+    font-feature-settings: "tnum" 1; /* tabular figures for numbers */
+  }
+  :focus-visible {
+    outline: 2px solid #3c5a73;
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Floating frosted panel (SDD §11.2) */
+  .panel {
+    @apply rounded-panel border border-line bg-panel shadow-float backdrop-blur-md;
+  }
+  .panel-title {
+    @apply font-serif text-lg font-semibold text-ink;
+  }
+  .section-label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.12em] text-pigment-umber;
+  }
+  .btn {
+    @apply inline-flex min-h-touch items-center justify-center rounded-control border border-line bg-surface px-4 text-sm font-medium text-ink hover:bg-white disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn border-pigment-umber bg-pigment-umber text-surface hover:bg-[#5a3820];
+  }
+  .seg {
+    @apply inline-flex rounded-control bg-[#F1EADB] p-1;
+  }
+  .seg > button {
+    @apply min-h-[36px] rounded-[6px] px-3 text-sm text-muted;
+  }
+  .seg > button[aria-pressed="true"] {
+    @apply bg-surface font-semibold text-ink shadow-sm;
+  }
+}
+
+/* Small screens: panels stack under the map instead of floating (SDD §11.2). */
+@media (max-width: 899px) {
+  .map-zone {
+    position: static !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 8px 16px;
+  }
+}

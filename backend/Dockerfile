@@ -13,7 +13,7 @@ RUN pip install -r requirements/processing.txt \
  && if [ "$INSTALL_DEV" = "1" ]; then pip install -r requirements/dev.txt; fi
 
 COPY . .
-RUN useradd --create-home app && chown -R app /app
+RUN useradd --create-home app && mkdir -p /data/cache && chown -R app /app /data/cache
 USER app
 
 EXPOSE 8000

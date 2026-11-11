@@ -14,6 +14,8 @@ x-django: &django
     DATABASE_URL: postgis://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     REDIS_URL: redis://redis:6379/0
     S3_ENDPOINT: http://s3:8333
+  volumes:
+    - ingest_cache:/data/cache # raw downloads + decoded rasters (SDD §12.3)
   depends_on:
     db: { condition: service_healthy }
     redis: { condition: service_started }
@@ -128,6 +130,7 @@ services:
     depends_on: [redis]
 
 volumes:
+  ingest_cache:
   pgdata:
   s3data:
   caddy_data:

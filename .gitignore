@@ -1,0 +1,45 @@
+# Private working docs (client material, context notes) — never commit
+livestock-geoportal-docs/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+backend/staticfiles/
+backend/media/
+
+# Node
+node_modules/
+frontend/dist/
+frontend/coverage/
+frontend/playwright-report/
+frontend/test-results/
+*.tsbuildinfo
+
+# Data (rasters, downloads, dumps never go in git)
+data/
+*.tif
+*.tiff
+*.nc
+*.pbf
+*.gpkg
+*.dump
+*.sql.gz
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp

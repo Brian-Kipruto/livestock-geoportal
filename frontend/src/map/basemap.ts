@@ -36,13 +36,28 @@ export function parchmentStyle(origin: string): StyleSpecification {
         },
       },
       {
+        // Regions + districts at national zooms; counties / sub-counties only when zoomed in.
+        id: "admin-lines-sub",
+        type: "line",
+        source: "admin",
+        "source-layer": "admin_unit",
+        minzoom: 9,
+        filter: [">=", ["get", "level"], 3],
+        paint: {
+          "line-color": tokens.neutral.charcoal,
+          "line-width": 0.5,
+          "line-opacity": 0.5,
+        },
+      },
+      {
         id: "admin-lines",
         type: "line",
         source: "admin",
         "source-layer": "admin_unit",
+        filter: ["<=", ["get", "level"], 2],
         paint: {
           "line-color": tokens.neutral.charcoal,
-          "line-width": ["match", ["get", "level"], 1, 1.6, 2, 0.9, 0.5],
+          "line-width": ["match", ["get", "level"], 1, 1.6, 0.9],
           "line-opacity": 0.7,
         },
       },

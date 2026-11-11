@@ -14,3 +14,4 @@ Template: Context · Decision · Consequences. Source: SDD §6.4.
 | [007](ADR-007-multi-country-config.md) | Multi-country via config, not code | Proposed |
 | [008](ADR-008-template-profiles.md) | Template-based profile text (no LLM) | Proposed |
 | [009](ADR-009-seaweedfs-object-storage.md) | SeaweedFS instead of MinIO for local/self-hosted S3 | Proposed |
+| [010](ADR-010-open-data-access.md) | Open data access: public catalogues first, recorded fallbacks | Proposed |

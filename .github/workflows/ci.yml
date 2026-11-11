@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build DB image (PostGIS + h3-pg)
+        run: docker build -t geoportal-db:ci infra/db
+      - name: Start DB
+        run: |
+          docker run -d --name db -p 5432:5432 \
+            -e POSTGRES_DB=geoportal -e POSTGRES_USER=geoportal -e POSTGRES_PASSWORD=ci \
+            -e MARTIN_DB_PASSWORD=ci geoportal-db:ci
+          for i in $(seq 1 30); do docker exec db pg_isready -U geoportal && break; sleep 2; done
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements/*.txt
+      - name: System GDAL
+        run: sudo apt-get update && sudo apt-get install -y gdal-bin libgdal-dev
+      - name: Install
+        working-directory: backend
+        run: pip install -r requirements/dev.txt
+      - name: Lint
+        working-directory: backend
+        run: ruff check . && ruff format --check .
+      - name: Migrations are up to date
+        working-directory: backend
+        env: { DATABASE_URL: "postgis://geoportal:ci@localhost:5432/geoportal", DJANGO_DEBUG: "true" }
+        run: python manage.py makemigrations --check --dry-run
+      - name: Tests
+        working-directory: backend
+        env: { DATABASE_URL: "postgis://geoportal:ci@localhost:5432/geoportal", DJANGO_DEBUG: "true" }
+        run: pytest
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  compose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate compose file
+        run: cp .env.example .env && docker compose config -q
